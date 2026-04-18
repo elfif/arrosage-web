@@ -1,12 +1,9 @@
 import './App.css'
-import { ArrosageControl } from './components/ArrosageControl'
+import { RouterProvider } from '@tanstack/react-router'
+import { router } from './router'
 
 function App() {
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <ArrosageControl />
-    </div>
-  )
+  return <RouterProvider router={router} />
 }
 
 export default App

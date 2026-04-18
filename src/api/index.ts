@@ -19,6 +19,7 @@ export {
   usePauseSystem,
   useResumeSystem,
   useResetSystem,
+  useStartSystem,
   useUpdateSettings,
 } from './mutations';
 

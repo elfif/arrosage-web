@@ -95,6 +95,24 @@ export function useResetSystem(
 }
 
 /**
+ * Hook to start sequence (SEMI_AUTO mode only)
+ */
+export function useStartSystem(
+  options?: Omit<UseMutationOptions<ActionResponse, ApiError, void>, 'mutationFn'>
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => apiClient.startSystem(),
+    onSuccess: () => {
+      // Invalidate status as starting a sequence changes the status
+      queryClient.invalidateQueries({ queryKey: queryKeys.status });
+    },
+    ...options,
+  });
+}
+
+/**
  * Hook to update settings
  */
 export function useUpdateSettings(

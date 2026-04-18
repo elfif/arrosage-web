@@ -92,6 +92,13 @@ export const apiClient = {
     });
   },
 
+  // POST /start - Start sequence (SEMI_AUTO mode only)
+  async startSystem(): Promise<ActionResponse> {
+    return apiRequest<ActionResponse>('/start', {
+      method: 'POST',
+    });
+  },
+
   // GET /settings - Get current settings
   async getCurrentSettings(): Promise<SettingsResponse> {
     return apiRequest<SettingsResponse>('/settings');
