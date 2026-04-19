@@ -1,7 +1,7 @@
 "use client"
 
 import { Link, useRouterState } from "@tanstack/react-router"
-import { Droplets, Settings } from "lucide-react"
+import { ClipboardList, Droplets, Settings } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const navItems = [
@@ -9,6 +9,11 @@ const navItems = [
     name: "Statut",
     href: "/",
     icon: Droplets,
+  },
+  {
+    name: "Journal",
+    href: "/journal",
+    icon: ClipboardList,
   },
   {
     name: "Paramètres",

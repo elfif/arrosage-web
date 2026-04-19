@@ -8,6 +8,8 @@ import type {
   SettingsRequest,
   SettingsResponse,
   ActionResponse,
+  RelayOpenRequest,
+  RelayStatusResponse,
 } from './types';
 import { ApiError } from './types';
 
@@ -107,6 +109,53 @@ export function useStartSystem(
     onSuccess: () => {
       // Invalidate status as starting a sequence changes the status
       queryClient.invalidateQueries({ queryKey: queryKeys.status });
+    },
+    ...options,
+  });
+}
+
+/**
+ * Hook to open a single relay (MANUAL mode only).
+ *
+ * The response may have success: false with a live relays snapshot when the
+ * server rejects the action due to mode mismatch; callers should inspect
+ * data.success and surface data.message inline rather than treating it as an error.
+ */
+export function useOpenRelay(
+  options?: Omit<
+    UseMutationOptions<RelayStatusResponse, ApiError, RelayOpenRequest>,
+    'mutationFn'
+  >
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: RelayOpenRequest) => apiClient.openRelay(data),
+    onSuccess: (data) => {
+      queryClient.setQueryData(queryKeys.relays, data);
+      queryClient.invalidateQueries({ queryKey: queryKeys.status });
+      queryClient.invalidateQueries({ queryKey: queryKeys.mode });
+    },
+    ...options,
+  });
+}
+
+/**
+ * Hook to close all relays (MANUAL mode only).
+ *
+ * Same wrong-mode envelope as useOpenRelay: inspect data.success / data.message.
+ */
+export function useCloseRelays(
+  options?: Omit<UseMutationOptions<RelayStatusResponse, ApiError, void>, 'mutationFn'>
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => apiClient.closeRelays(),
+    onSuccess: (data) => {
+      queryClient.setQueryData(queryKeys.relays, data);
+      queryClient.invalidateQueries({ queryKey: queryKeys.status });
+      queryClient.invalidateQueries({ queryKey: queryKeys.mode });
     },
     ...options,
   });

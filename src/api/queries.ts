@@ -6,6 +6,11 @@ import type {
   ModeResponse,
   StatusResponse,
   SettingsResponse,
+  RelayStatusResponse,
+  HistoryListParams,
+  HistoryListResponse,
+  HistoryStatsParams,
+  HistoryStatsResponse,
 } from './types';
 import { ApiError } from './types';
 
@@ -15,6 +20,9 @@ export const queryKeys = {
   mode: ['mode'] as const,
   status: ['status'] as const,
   settings: ['settings'] as const,
+  relays: ['relays'] as const,
+  history: ['history'] as const,
+  historyStats: ['history-stats'] as const,
 };
 
 // Query hooks for GET endpoints
@@ -56,7 +64,7 @@ export function useCurrentStatus(
   return useQuery({
     queryKey: queryKeys.status,
     queryFn: () => apiClient.getCurrentStatus(),
-    refetchInterval: 2000, // Refetch every 2 seconds for real-time status updates
+    refetchInterval: 5000, // Refetch every 5 seconds for real-time status updates
     ...options,
   });
 }
@@ -71,6 +79,50 @@ export function useCurrentSettings(
     queryKey: queryKeys.settings,
     queryFn: () => apiClient.getCurrentSettings(),
     staleTime: 1000 * 60 * 2, // 2 minutes - settings don't change very often
+    ...options,
+  });
+}
+
+/**
+ * Hook to get per-relay status (works in any mode)
+ */
+export function useRelaysStatus(
+  options?: Omit<UseQueryOptions<RelayStatusResponse, ApiError>, 'queryKey' | 'queryFn'>
+) {
+  return useQuery({
+    queryKey: queryKeys.relays,
+    queryFn: () => apiClient.getRelaysStatus(),
+    refetchInterval: 5000,
+    ...options,
+  });
+}
+
+/**
+ * Hook to get paginated relay activity history.
+ */
+export function useHistory(
+  params: HistoryListParams = {},
+  options?: Omit<UseQueryOptions<HistoryListResponse, ApiError>, 'queryKey' | 'queryFn'>
+) {
+  return useQuery({
+    queryKey: [...queryKeys.history, params],
+    queryFn: () => apiClient.getHistory(params),
+    staleTime: 30_000,
+    ...options,
+  });
+}
+
+/**
+ * Hook to get aggregate history stats for a month or year.
+ */
+export function useHistoryStats(
+  params: HistoryStatsParams,
+  options?: Omit<UseQueryOptions<HistoryStatsResponse, ApiError>, 'queryKey' | 'queryFn'>
+) {
+  return useQuery({
+    queryKey: [...queryKeys.historyStats, params],
+    queryFn: () => apiClient.getHistoryStats(params),
+    staleTime: 60_000,
     ...options,
   });
 }

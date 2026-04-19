@@ -10,6 +10,9 @@ export {
   useCurrentMode,
   useCurrentStatus,
   useCurrentSettings,
+  useRelaysStatus,
+  useHistory,
+  useHistoryStats,
   queryKeys,
 } from './queries';
 
@@ -20,6 +23,8 @@ export {
   useResumeSystem,
   useResetSystem,
   useStartSystem,
+  useOpenRelay,
+  useCloseRelays,
   useUpdateSettings,
 } from './mutations';
 

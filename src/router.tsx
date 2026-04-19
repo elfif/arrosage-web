@@ -2,6 +2,7 @@ import { createRouter, createRoute, createRootRoute } from '@tanstack/react-rout
 import { AppLayout } from './components/AppLayout';
 import { StatusPage } from './pages/StatusPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { JournalPage } from './pages/JournalPage';
 
 // Root route with layout
 const rootRoute = createRootRoute({
@@ -15,6 +16,13 @@ const indexRoute = createRoute({
   component: StatusPage,
 });
 
+// Journal route (/journal)
+const journalRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/journal',
+  component: JournalPage,
+});
+
 // Settings route (/settings)
 const settingsRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -23,7 +31,7 @@ const settingsRoute = createRoute({
 });
 
 // Create the route tree
-const routeTree = rootRoute.addChildren([indexRoute, settingsRoute]);
+const routeTree = rootRoute.addChildren([indexRoute, journalRoute, settingsRoute]);
 
 // Create and export the router
 export const router = createRouter({ routeTree });

@@ -1,17 +1,10 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { SettingsForm } from "@/components/settings/SettingsForm";
 
 export function SettingsPage() {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Paramètres</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <p className="text-muted-foreground">
-          Section paramètres - À développer selon vos besoins spécifiques.
-        </p>
-      </CardContent>
-    </Card>
-  )
+    <div className="flex flex-col gap-4 p-6 w-full">
+      <h2 className="text-2xl font-bold">Paramètres</h2>
+      <SettingsForm />
+    </div>
+  );
 }
-

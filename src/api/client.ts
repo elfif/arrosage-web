@@ -7,11 +7,27 @@ import type {
   SettingsResponse,
   ActionResponse,
   ErrorResponse,
+  RelayOpenRequest,
+  RelayStatusResponse,
+  HistoryListParams,
+  HistoryListResponse,
+  HistoryStatsParams,
+  HistoryStatsResponse,
 } from './types';
 import { ApiError } from './types';
 
 // API Configuration
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+
+function buildQueryString(params: Record<string, string | number | undefined>): string {
+  const search = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (value === undefined) continue;
+    search.set(key, String(value));
+  }
+  const qs = search.toString();
+  return qs ? `?${qs}` : '';
+}
 
 // Generic fetch wrapper with error handling
 async function apiRequest<T>(
@@ -99,6 +115,26 @@ export const apiClient = {
     });
   },
 
+  // POST /relay/open - Open a single relay (MANUAL mode only)
+  async openRelay(data: RelayOpenRequest): Promise<RelayStatusResponse> {
+    return apiRequest<RelayStatusResponse>('/relay/open', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  // POST /relay/close - Close all relays (MANUAL mode only)
+  async closeRelays(): Promise<RelayStatusResponse> {
+    return apiRequest<RelayStatusResponse>('/relay/close', {
+      method: 'POST',
+    });
+  },
+
+  // GET /relays - Get current per-relay status (any mode)
+  async getRelaysStatus(): Promise<RelayStatusResponse> {
+    return apiRequest<RelayStatusResponse>('/relays');
+  },
+
   // GET /settings - Get current settings
   async getCurrentSettings(): Promise<SettingsResponse> {
     return apiRequest<SettingsResponse>('/settings');
@@ -110,6 +146,28 @@ export const apiClient = {
       method: 'POST',
       body: JSON.stringify(data),
     });
+  },
+
+  // GET /history - Paginated list of relay activity
+  async getHistory(params: HistoryListParams = {}): Promise<HistoryListResponse> {
+    const qs = buildQueryString({
+      page: params.page,
+      page_size: params.page_size,
+      relay_id: params.relay_id,
+      start: params.start,
+      end: params.end,
+    });
+    return apiRequest<HistoryListResponse>(`/history${qs}`);
+  },
+
+  // GET /history/stats - Aggregate stats for a month or year
+  async getHistoryStats(params: HistoryStatsParams): Promise<HistoryStatsResponse> {
+    const qs = buildQueryString({
+      period: params.period,
+      year: params.year,
+      month: params.month,
+    });
+    return apiRequest<HistoryStatsResponse>(`/history/stats${qs}`);
   },
 };
 
