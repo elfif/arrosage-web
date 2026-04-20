@@ -12,34 +12,21 @@ export default defineConfig({
     },
   },
   build: {
-    // Keep a tighter warning threshold now that we split vendors out.
     chunkSizeWarningLimit: 600,
     rollupOptions: {
       output: {
+        // Only split out recharts (and its d3/victory-vendor deps): it's big
+        // and lazy-loaded on /journal only. Splitting react/radix/tanstack
+        // into separate chunks triggers init-order issues with React 19 +
+        // Radix (`Cannot read properties of undefined (reading 'forwardRef')`).
         manualChunks(id) {
           if (!id.includes('node_modules')) return;
-
-          if (id.includes('/recharts/') || id.includes('/victory-vendor/') || id.includes('/d3-')) {
-            return 'recharts';
-          }
-          if (id.includes('/@radix-ui/') || id.includes('/radix-ui/')) {
-            return 'radix';
-          }
-          if (id.includes('/@tanstack/react-router') || id.includes('/@tanstack/router-')) {
-            return 'tanstack-router';
-          }
-          if (id.includes('/@tanstack/react-query') || id.includes('/@tanstack/query-')) {
-            return 'tanstack-query';
-          }
-          if (id.includes('/lucide-react/')) {
-            return 'lucide';
-          }
           if (
-            id.includes('/react/') ||
-            id.includes('/react-dom/') ||
-            id.includes('/scheduler/')
+            id.includes('/recharts/') ||
+            id.includes('/victory-vendor/') ||
+            id.includes('/d3-')
           ) {
-            return 'react';
+            return 'recharts';
           }
         },
       },
