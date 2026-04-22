@@ -13,6 +13,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import {
+  useCurrentMode,
   useCurrentSettings,
   useCurrentStatus,
   useRemoveRelayFromSequence,
@@ -26,6 +27,7 @@ import { UpcomingStepsList } from "./UpcomingStepsList";
 export function ActiveSequenceCard() {
   const { data: status } = useCurrentStatus();
   const { data: settings } = useCurrentSettings();
+  const { data: mode } = useCurrentMode();
   const removeMutation = useRemoveRelayFromSequence();
   const [confirmRelayId, setConfirmRelayId] = useState<number | null>(null);
 
@@ -35,6 +37,7 @@ export function ActiveSequenceCard() {
   }
 
   const shouldCloseAt = active.should_close_at ?? null;
+  const isPaused = mode?.current === "pause";
   const skippedRelays =
     active.skipped_relays ?? status.skipped_relays ?? [];
   const pendingRelayId = removeMutation.isPending
@@ -80,7 +83,7 @@ export function ActiveSequenceCard() {
               Fermeture dans
             </span>
             <span className="text-2xl font-bold">
-              <RelayCountdown shouldCloseAt={shouldCloseAt} />
+              <RelayCountdown shouldCloseAt={shouldCloseAt} paused={isPaused} />
             </span>
           </div>
         </div>
