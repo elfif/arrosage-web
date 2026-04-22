@@ -2,10 +2,7 @@ import { lazy, Suspense } from 'react';
 import { createRouter, createRoute, createRootRoute } from '@tanstack/react-router';
 import { AppLayout } from './components/AppLayout';
 import { Skeleton } from './components/ui/skeleton';
-
-const StatusPage = lazy(() =>
-  import('./pages/StatusPage').then((m) => ({ default: m.StatusPage })),
-);
+import { StatusPage } from './pages/StatusPage';
 const JournalPage = lazy(() =>
   import('./pages/JournalPage').then((m) => ({ default: m.JournalPage })),
 );
@@ -39,7 +36,8 @@ const rootRoute = createRootRoute({
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
-  component: withSuspense(StatusPage),
+  // Eager: home page must never load a stale lazy chunk (remove-relay UI lives here).
+  component: StatusPage,
 });
 
 const journalRoute = createRoute({

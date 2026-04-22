@@ -47,17 +47,19 @@ export function StatusPage() {
         return <ManualRelayGrid />;
       case "pause":
         return (
-          <Card>
-            <CardHeader>
-              <CardTitle>Système en pause</CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-3">
-              <p className="text-sm text-muted-foreground">
-                L'arrosage est suspendu. Reprenez pour réactiver le mode précédent.
-              </p>
-              <PauseResumeButton />
-            </CardContent>
-          </Card>
+          <div className="flex flex-col gap-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Système en pause</CardTitle>
+              </CardHeader>
+              <CardContent className="flex flex-col gap-3">
+                <p className="text-sm text-muted-foreground">
+                  L'arrosage est suspendu. Reprenez pour réactiver le mode précédent.
+                </p>
+              </CardContent>
+            </Card>
+            {hasActive ? <ActiveSequenceCard /> : null}
+          </div>
         );
       default:
         return null;
@@ -70,12 +72,15 @@ export function StatusPage() {
         <h2 className="text-2xl font-bold">
           Statut actuel : {MODE_LABELS[currentMode]}
         </h2>
-        <ModeChangeDialog
-          isOpen={isStatusDialogOpen}
-          onOpenChange={setIsStatusDialogOpen}
-          currentMode={currentMode}
-          onModeChange={handleModeChange}
-        />
+        <div className="flex items-center gap-2">
+          <PauseResumeButton />
+          <ModeChangeDialog
+            isOpen={isStatusDialogOpen}
+            onOpenChange={setIsStatusDialogOpen}
+            currentMode={currentMode}
+            onModeChange={handleModeChange}
+          />
+        </div>
       </div>
       {renderModeContent()}
     </div>

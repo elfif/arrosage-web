@@ -1,50 +1,56 @@
 import { Button } from "@/components/ui/button";
-import { Play, Pause } from "lucide-react";
-import { useCurrentMode } from "../api/queries";
-import { usePauseSystem } from "../api/mutations";
-import { useResumeSystem } from "../api/mutations";
+import { Loader2, Pause, Play } from "lucide-react";
+import {
+  useCurrentMode,
+  useCurrentStatus,
+  usePauseSystem,
+  useResumeSystem,
+} from "@/api";
 
 export function PauseResumeButton() {
   const { data: mode } = useCurrentMode();
-  const pauseMutation = usePauseSystem({
-    onSuccess: (data) => {
-      console.log("System paused:", data.message);
-    },
-  });
+  const { data: status } = useCurrentStatus();
 
-  const resumeMutation = useResumeSystem({
-    onSuccess: (data) => {
-      console.log("System resumed:", data.message);
-    },
-  });
+  const pauseMutation = usePauseSystem();
+  const resumeMutation = useResumeSystem();
 
-  const handlePauseResume = () => {
-    if (mode?.current === "pause") {
+  const isPaused = mode?.current === "pause";
+  const hasActive = !!status?.has_active_sequence;
+
+  if (!isPaused && !hasActive) {
+    return null;
+  }
+
+  const isPending = pauseMutation.isPending || resumeMutation.isPending;
+
+  const handleClick = () => {
+    if (isPaused) {
       resumeMutation.mutate();
     } else {
       pauseMutation.mutate();
     }
   };
 
-  const isPaused = mode?.current === "pause";
+  const label = isPaused ? "Reprendre" : "Mettre en pause";
 
   return (
     <Button
-      variant={isPaused ? "default" : "destructive"}
-      onClick={handlePauseResume}
+      type="button"
+      variant="default"
+      size="iconLg"
+      shape="round"
+      disabled={isPending}
+      aria-label={label}
+      title={label}
+      onClick={handleClick}
     >
-      {isPaused ? (
-        <>
-          <Play className="mr-2 h-4 w-4" />
-          Reprendre
-        </>
+      {isPending ? (
+        <Loader2 className="animate-spin" aria-hidden />
+      ) : isPaused ? (
+        <Play aria-hidden />
       ) : (
-        <>
-          <Pause className="mr-2 h-4 w-4" />
-          Pause
-        </>
+        <Pause aria-hidden />
       )}
     </Button>
   );
 }
-

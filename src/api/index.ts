@@ -23,6 +23,7 @@ export {
   useResumeSystem,
   useResetSystem,
   useStartSystem,
+  useRemoveRelayFromSequence,
   useOpenRelay,
   useCloseRelays,
   useUpdateSettings,

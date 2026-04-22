@@ -23,12 +23,32 @@ export interface ModeResponse {
 export interface SequenceStatus {
   opened_relay: number; // 0-7
   opened_at: number; // Unix timestamp
-  should_close_at: number; // Unix timestamp
+  /** Only present when the relay has a non-zero duration */
+  should_close_at?: number; // Unix timestamp
+  /** Relay indices skipped for the remainder of this run */
+  skipped_relays?: number[];
 }
 
 export interface StatusResponse {
   status: SequenceStatus | null;
   has_active_sequence: boolean;
+  /** Relay indices skipped for the remainder of the current run; empty when idle */
+  skipped_relays: number[];
+}
+
+export type SequenceRemoveReason =
+  | 'ok'
+  | 'already_past'
+  | 'already_skipped'
+  | 'sequence_ended'
+  | 'invalid_relay_id';
+
+export interface SequenceRemoveRelayResponse {
+  success: boolean;
+  reason: SequenceRemoveReason;
+  current_mode: Mode | null;
+  opened_relay: number | null; // 0-7 or null
+  skipped_relays: number[];
 }
 
 export interface SettingsResponse {

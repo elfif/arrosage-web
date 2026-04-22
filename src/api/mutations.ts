@@ -10,6 +10,9 @@ import type {
   ActionResponse,
   RelayOpenRequest,
   RelayStatusResponse,
+  SequenceRemoveRelayResponse,
+  SequenceStatus,
+  StatusResponse,
 } from './types';
 import { ApiError } from './types';
 
@@ -109,6 +112,54 @@ export function useStartSystem(
     onSuccess: () => {
       // Invalidate status as starting a sequence changes the status
       queryClient.invalidateQueries({ queryKey: queryKeys.status });
+    },
+    ...options,
+  });
+}
+
+/**
+ * Remove a relay from the current sequence (DELETE /sequence/relay/{id}).
+ * On HTTP 200, inspect `reason` / `success` if needed; cache is patched from the response.
+ */
+export function useRemoveRelayFromSequence(
+  options?: Omit<
+    UseMutationOptions<SequenceRemoveRelayResponse, ApiError, number>,
+    'mutationFn'
+  >
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (relayId: number) => apiClient.removeRelayFromSequence(relayId),
+    onSuccess: (data) => {
+      queryClient.setQueryData<StatusResponse>(queryKeys.status, (prev) => {
+        if (!prev) return prev;
+        if (data.opened_relay === null) {
+          return {
+            ...prev,
+            has_active_sequence: false,
+            status: null,
+            skipped_relays: [],
+          };
+        }
+        const baseNested: SequenceStatus =
+          prev.status ??
+          ({
+            opened_relay: data.opened_relay,
+            opened_at: 0,
+          } satisfies SequenceStatus);
+        return {
+          ...prev,
+          skipped_relays: data.skipped_relays,
+          has_active_sequence: true,
+          status: {
+            ...baseNested,
+            opened_relay: data.opened_relay,
+            skipped_relays: data.skipped_relays,
+          },
+        };
+      });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.status });
     },
     ...options,
   });

@@ -13,6 +13,7 @@ import type {
   HistoryListResponse,
   HistoryStatsParams,
   HistoryStatsResponse,
+  SequenceRemoveRelayResponse,
 } from './types';
 import { ApiError } from './types';
 
@@ -85,6 +86,13 @@ export const apiClient = {
   // GET /status - Get current status
   async getCurrentStatus(): Promise<StatusResponse> {
     return apiRequest<StatusResponse>('/status');
+  },
+
+  // DELETE /sequence/relay/{relay_id} - Remove relay from current sequence
+  async removeRelayFromSequence(relayId: number): Promise<SequenceRemoveRelayResponse> {
+    return apiRequest<SequenceRemoveRelayResponse>(`/sequence/relay/${relayId}`, {
+      method: 'DELETE',
+    });
   },
 
   // POST /pause - Pause system
