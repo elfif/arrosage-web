@@ -8,6 +8,24 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
     host: true,
+    // Same-origin `/api` as in production (Caddy). Dev/preview proxy to FastAPI.
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '') || '/',
+      },
+    },
+  },
+  preview: {
+    allowedHosts: ['arrosage-pi.local'],
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '') || '/',
+      },
+    },
   },
   resolve: {
     alias: {
